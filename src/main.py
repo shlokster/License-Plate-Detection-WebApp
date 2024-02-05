@@ -2,8 +2,7 @@ from yolov5m_inference import inference
 from utils import getBestPrediction
 from preprocess import TransformImage
 from ocr import ExtractLicenseNum
-
-
+        
 class run_license_plate_recognition:
     def __init__(self, path2img):
         self.path = path2img
@@ -22,17 +21,21 @@ class run_license_plate_recognition:
         return bbox
 
     def showBestPrediction(self):
+        
         bbox = self.getBestBoundingBox()
         image = TransformImage(self.path).show(bounding_box=bbox, save_img=False)
         return image
 
     def recognize_text(self):
-        bbox = self.getBestBoundingBox()
-        cropped_img = TransformImage(self.path).crop_ROI(
-            bounding_box=bbox, save_img=True
-        )
-        result = ExtractLicenseNum(cropped_img).ocr_easyocr()
-        return result
+        try:
+            bbox = self.getBestBoundingBox()
+            cropped_img = TransformImage(self.path).crop_ROI(
+                bounding_box=bbox, save_img=True
+            )
+            result = ExtractLicenseNum(cropped_img).ocr_easyocr()
+            return result
+        except:
+            return None
 
 
 if __name__ == "__main__":

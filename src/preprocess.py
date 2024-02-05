@@ -37,7 +37,9 @@ class TransformImage:
             math.floor(y1) : math.ceil(y2), math.floor(x1) : math.ceil(x2)
         ]
 
-        color_converted = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2RGB)
+        color_converted = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2GRAY)
+        _, thresholded = cv2.threshold(color_converted, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+
         # pil_image = Image.fromarray(color_converted)
         # pil_image.show()
         path2save = "temp/cropped_img.png"
