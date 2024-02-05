@@ -3,7 +3,7 @@ from main import run_license_plate_recognition
 import os
 import cv2
 import re
-pattern = r'\b[A-Z]{2}\d{2}[A-Z]{1,2}\d{4}\b'
+pattern = r'\b(?:[A-Z]{1}[A-Z]{2}\d{2}[A-Z]{1,2}\d{4}|[A-Z]{2}\d{2}[A-Z]{1,2}\d{4})\b'
 frame_interval = 0.5
 
 def app():
@@ -58,6 +58,7 @@ def app():
 
                                 recognizer = run_license_plate_recognition(frame_filename)
                                 text = recognizer.recognize_text()
+                                print(text)
                                 if text != None:
                                     matches = re.findall(pattern, text)
                                     if matches != []:
@@ -85,10 +86,11 @@ def app():
                         # display license plate as text
                         recognizer = run_license_plate_recognition(save_path)
                         text = recognizer.recognize_text()
+                        print(text)
                         if text != None:
-                            matches = re.findall(pattern, text)
-                            if matches != []:
-                                st.write(f"Detected License Plate Number at Frame {frame_number}: {matches}")   
+                            # matches = re.findall(pattern, text)
+                            # if matches != []:
+                                st.write(f"Detected License Plate Number: {text}")   
 
 
 if __name__ == "__main__":
