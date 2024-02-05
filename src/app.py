@@ -2,8 +2,9 @@ import streamlit as st
 from main import run_license_plate_recognition
 import os
 import cv2
-import tempfile
-frame_interval = 0.2
+import re
+pattern = r'\b[A-Z]{2}\d{2}[A-Z]{1,2}\d{4}\b'
+frame_interval = 0.5
 
 def app():
     st.header("License Plate Recognition Web App")
@@ -58,7 +59,9 @@ def app():
                                 recognizer = run_license_plate_recognition(frame_filename)
                                 text = recognizer.recognize_text()
                                 if text != None:
-                                    st.write(f"Detected License Plate Number at Frame {frame_number}: {text}")   
+                                    matches = re.findall(pattern, text)
+                                    if matches != []:
+                                        st.write(f"Detected License Plate Number at Frame {frame_number}: {matches}")   
 
                             frame_number += 1
 
@@ -83,7 +86,9 @@ def app():
                         recognizer = run_license_plate_recognition(save_path)
                         text = recognizer.recognize_text()
                         if text != None:
-                            st.write(f"Detected License Plate Number: {text}")   
+                            matches = re.findall(pattern, text)
+                            if matches != []:
+                                st.write(f"Detected License Plate Number at Frame {frame_number}: {matches}")   
 
 
 if __name__ == "__main__":
