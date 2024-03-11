@@ -2,8 +2,12 @@ import streamlit as st
 from main import run_license_plate_recognition
 import os
 import cv2
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+from datetime import datetime, timedelta
 import re
-pattern = r'\b(?:[A-Z]{1}[A-Z]{2}\d{2}[A-Z]{1,2}\d{4}|[A-Z]{2}\d{2}[A-Z]{1,2}\d{4})\b'
+pattern = r'\b(?:[A-Z]{1}[A-Z]{2}\d{2,3}[A-Z]{1,2}\d{4}|[A-Z]{2}\d{2,3}[A-Z]{1,2}\d{4})\b'
 frame_interval = 0.5
 
 def app():
@@ -44,7 +48,8 @@ def app():
                         fps = cap.get(cv2.CAP_PROP_FPS)
                         frame_interval_frames = int(fps * frame_interval)
 
-                        frames = []
+                        captured_plates = []
+                        captured_time = []
                         frame_number = 0
                         while True:
                             ret, frame = cap.read()
@@ -60,9 +65,16 @@ def app():
                                 text = recognizer.recognize_text()
                                 print(text)
                                 if text != None:
-                                    matches = re.findall(pattern, text)
-                                    if matches != []:
-                                        st.write(f"Detected License Plate Number at Frame {frame_number}: {matches}")   
+                                    matches = re.search(pattern, text)
+                                    if matches:
+                                        trimmed_string = matches.group(0)
+                                        trimmed_string = re.sub(r'^E(?=K)', '', trimmed_string)
+                                    else:
+                                        trimmed_string = None
+                                    if trimmed_string != None:
+                                        st.write(f"Detected License Plate Number at Frame {trimmed_string}: {frame_number}")
+                                        captured_plates.append(trimmed_string)   
+                                        captured_time.append(frame_number)
 
                             frame_number += 1
 
@@ -70,12 +82,10 @@ def app():
                         # Release the video capture object and delete the temporary directory
                         cap.release()
                         st.warning("Frames extraction complete.")
-                        st.balloons()
-                        st.info("Temporary files are automatically cleaned up.")
+                        df = pd.DataFrame({'License Plate Number': captured_plates, 'Time Stamps': captured_time})
+                        df['Serial Number'] = range(1, len(df) + 1)
 
-                        # recognizer = run_video_split(temp_dir)
-                        # text = recognizer.recognize_text_frames()
-                        # st.write(f"Detected License Plate Number at : {text}")  
+                        st.write(df)
                 
             else:
                 # Process image here (e.g., display or analyze image)
@@ -90,7 +100,7 @@ def app():
                         if text != None:
                             # matches = re.findall(pattern, text)
                             # if matches != []:
-                                st.write(f"Detected License Plate Number: {text}")   
+                                st.write(f"Detected License Plate Number: {text}")  
 
 
 if __name__ == "__main__":
